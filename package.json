@@ -1,0 +1,16 @@
+{
+  "name": "browser-tools",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Cross-platform Chrome DevTools Protocol tools for agent-assisted web automation. Uses your installed Chrome (no Chromium download).",
+  "author": "Mario Zechner (original); cross-platform patches by Iris",
+  "license": "MIT",
+  "dependencies": {
+    "@mozilla/readability": "^0.6.0",
+    "cheerio": "^1.1.2",
+    "jsdom": "^27.0.1",
+    "puppeteer-core": "^23.11.1",
+    "turndown": "^7.2.2",
+    "turndown-plugin-gfm": "^1.0.2"
+  }
+}
