@@ -4,7 +4,7 @@ import { spawn } from "node:child_process";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
-import puppeteer from "puppeteer-core";
+import { probeBrowser } from "./browser-connect.js";
 
 const useProfile = process.argv[2] === "--profile";
 
@@ -54,16 +54,12 @@ const CHROME = findChrome();
 // --- Where the automated Chrome keeps its user-data-dir ---
 const SCRAPING_DIR = path.join(HOME, ".cache", "browser-tools");
 
-// Check if already running on :9222
-try {
-	const browser = await puppeteer.connect({
-		browserURL: "http://localhost:9222",
-		defaultViewport: null,
-	});
-	await browser.disconnect();
+// Check if already running on :9222 (fast probe, no 5s hang)
+const existing = await probeBrowser();
+if (existing?.webSocketDebuggerUrl) {
 	console.log("✓ Chrome already running on :9222");
 	process.exit(0);
-} catch {}
+}
 
 // --- Cross-platform recursive copy (replaces macOS-only rsync) ---
 const LOCK_FILES = new Set(["SingletonLock", "SingletonSocket", "SingletonCookie"]);
@@ -127,24 +123,22 @@ spawn(
 		`--user-data-dir=${SCRAPING_DIR}`,
 		"--no-first-run",
 		"--no-default-browser-check",
+		"--disable-background-networking",
+		"--disable-sync",
+		"--disable-features=Translate,MediaRouter",
+		"--remote-allow-origins=*",
 	],
 	{ detached: true, stdio: "ignore" },
 ).unref();
 
-// Wait for Chrome to be ready
+// Wait for Chrome to be ready (fast probe with linear backoff)
 let connected = false;
-for (let i = 0; i < 30; i++) {
-	try {
-		const browser = await puppeteer.connect({
-			browserURL: "http://localhost:9222",
-			defaultViewport: null,
-		});
-		await browser.disconnect();
+for (let i = 0; i < 60; i++) {
+	if ((await probeBrowser())?.webSocketDebuggerUrl) {
 		connected = true;
 		break;
-	} catch {
-		await new Promise((r) => setTimeout(r, 500));
 	}
+	await new Promise((r) => setTimeout(r, 300 + i * 50));
 }
 
 if (!connected) {

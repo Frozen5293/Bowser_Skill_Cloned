@@ -1,13 +1,13 @@
 #!/usr/bin/env node
 
-import puppeteer from "puppeteer-core";
+import { connectBrowser, getActivePage } from "./browser-connect.js";
 import { Readability } from "@mozilla/readability";
 import { JSDOM } from "jsdom";
 import TurndownService from "turndown";
 import { gfm } from "turndown-plugin-gfm";
 
-// Global timeout - exit if script takes too long
-const TIMEOUT = 30000;
+// Global timeout - exit if script takes too long (override with CONTENT_TIMEOUT ms)
+const TIMEOUT = Number(process.env.CONTENT_TIMEOUT || 30000);
 const timeoutId = setTimeout(() => {
 	console.error("✗ Timeout after 30s");
 	process.exit(1);
@@ -24,27 +24,12 @@ if (!url) {
 	process.exit(1);
 }
 
-const b = await Promise.race([
-	puppeteer.connect({
-		browserURL: "http://localhost:9222",
-		defaultViewport: null,
-	}),
-	new Promise((_, reject) => setTimeout(() => reject(new Error("timeout")), 5000)),
-]).catch((e) => {
-	console.error("✗ Could not connect to browser:", e.message);
-	console.error("  Run: browser-start.js");
-	process.exit(1);
-});
-
-const p = (await b.pages()).at(-1);
-if (!p) {
-	console.error("✗ No active tab found");
-	process.exit(1);
-}
+const b = await connectBrowser();
+const p = await getActivePage(b);
 
 await Promise.race([
 	p.goto(url, { waitUntil: "networkidle2" }),
-	new Promise((r) => setTimeout(r, 10000)),
+	new Promise((r) => setTimeout(r, Number(process.env.CONTENT_NAV_TIMEOUT || 10000))),
 ]).catch(() => {});
 
 // Get HTML via CDP (works even with TrustedScriptURL restrictions)
