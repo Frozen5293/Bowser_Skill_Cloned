@@ -25,17 +25,20 @@ This is a **cross-platform, dependency-light** fork of the
 
 ### pi-coding-agent
 
-Clone into your user skills directory (discovered recursively):
+Install directly from the git repository (it is a valid pi package with a `pi.skills`
+manifest entry and a conventional `skills/` directory):
 
 ```bash
-git clone https://github.com/<you>/browser-tools-skill ~/.pi/agent/skills/browser-tools
-cd ~/.pi/agent/skills/browser-tools && npm install
+pi install git:github.com/Frozen5293/Bowser_Skill_Cloned
 ```
 
-Or, to install straight from a git repo as a package, add to `~/.pi/settings.json`:
+pi clones the package and runs `npm install` automatically, then discovers
+`skills/browser-tools/SKILL.md`. Invoke it with `/skill:browser-tools`.
 
-```json
-{ "packages": ["git:github.com/<you>/browser-tools-skill"] }
+Alternatively, clone the repo into your user skills directory:
+
+```bash
+git clone https://github.com/Frozen5293/Bowser_Skill_Cloned ~/.pi/agent/skills/browser-tools-src
 ```
 
 Or point the `skills` array at a local checkout:
@@ -44,16 +47,14 @@ Or point the `skills` array at a local checkout:
 { "skills": ["/path/to/browser-tools-skill"] }
 ```
 
-Then invoke it with `/skill:browser-tools`.
-
 ### Claude Code
 
 Claude Code only looks one level deep for `SKILL.md`, so symlink the skill folder:
 
 ```bash
-git clone https://github.com/<you>/browser-tools-skill
+git clone https://github.com/Frozen5293/Bowser_Skill_Cloned
 mkdir -p ~/.claude/skills
-ln -s "$(pwd)/browser-tools-skill" ~/.claude/skills/browser-tools
+ln -s "$(pwd)/Bowser_Skill_Cloned/skills/browser-tools" ~/.claude/skills/browser-tools
 cd ~/.claude/skills/browser-tools && npm install
 ```
 
@@ -64,10 +65,10 @@ Same idea — clone, then symlink (or copy) the skill folder into the harness's
 
 ## Setup
 
-Run once before first use:
+If you installed with `pi install`, dependencies are already installed. Otherwise run
+once before first use:
 
 ```bash
-cd browser-tools-skill
 npm install
 ```
 
@@ -76,23 +77,23 @@ npm install
 All commands expect Chrome to be running on `:9222`. Start it first:
 
 ```bash
-node browser-start.js            # fresh profile
-node browser-start.js --profile  # copy your Chrome profile (cookies, logins)
+node skills/browser-tools/browser-start.js            # fresh profile
+node skills/browser-tools/browser-start.js --profile  # copy your Chrome profile (cookies, logins)
 ```
 
 Then:
 
 ```bash
-node browser-nav.js https://example.com          # navigate (add --new for a new tab)
-node browser-content.js https://example.com      # extract readable content as Markdown
-node browser-eval.js 'document.title'            # run JavaScript in the active tab
-node browser-screenshot.js                       # screenshot the viewport -> temp PNG
-node browser-cookies.js                          # list cookies for the current tab
-node browser-pick.js "Click the submit button"   # interactive element picker
+node skills/browser-tools/browser-nav.js https://example.com          # navigate (add --new for a new tab)
+node skills/browser-tools/browser-content.js https://example.com      # extract readable content as Markdown
+node skills/browser-tools/browser-eval.js 'document.title'            # run JavaScript in the active tab
+node skills/browser-tools/browser-screenshot.js                       # screenshot the viewport -> temp PNG
+node skills/browser-tools/browser-cookies.js                          # list cookies for the current tab
+node skills/browser-tools/browser-pick.js "Click the submit button"   # interactive element picker
 ```
 
-In pi, the placeholders in `SKILL.md` (`{baseDir}`) are expanded to this directory at
-runtime, so you can also just use `/skill:browser-tools` and let the agent drive it.
+In pi, the placeholders in `SKILL.md` (`{baseDir}`) are expanded to the skill directory
+at runtime, so you can also just use `/skill:browser-tools` and let the agent drive it.
 
 ## Notes
 

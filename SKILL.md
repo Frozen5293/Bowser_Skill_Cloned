@@ -9,10 +9,10 @@ Chrome DevTools Protocol tools for agent-assisted web automation. These tools co
 
 ## Setup
 
-Run once before first use:
+Run once before first use (this installs the package dependencies into the package root):
 
 ```bash
-cd {baseDir}/browser-tools
+cd {baseDir}/../..
 npm install
 ```
 

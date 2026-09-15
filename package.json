@@ -5,6 +5,15 @@
   "description": "Cross-platform Chrome DevTools Protocol tools for agent-assisted web automation. Uses your installed Chrome (no Chromium download).",
   "author": "Mario Zechner (original); cross-platform patches by Iris",
   "license": "MIT",
+  "keywords": [
+    "pi-package",
+    "pi-skill"
+  ],
+  "pi": {
+    "skills": [
+      "./skills"
+    ]
+  },
   "dependencies": {
     "@mozilla/readability": "^0.6.0",
     "cheerio": "^1.1.2",
